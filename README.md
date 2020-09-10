@@ -13,7 +13,6 @@ Le Git reprend :
   Une version legacy du projet aussi composé de deux application (receiver et sender)
   
   
-  Un dossier comprenant des scripts SQL
-  
+  Un dossier comprenant des scripts SQL.
     L'exécution de ceux-ci permettant de créer une base de donnée utilisable par MVP
     
