@@ -1,0 +1,4 @@
+select e.firstName as employee, r.name as role, t.name as task from employee_role_task as ert 
+	left join employee as e on ert.idEmployee = e.id
+	left join role as r on ert.idRole = r.id
+	left join task as t on ert.idTask = t.id;

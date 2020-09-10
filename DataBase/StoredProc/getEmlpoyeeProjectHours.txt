@@ -1,0 +1,43 @@
+use mvp;
+DROP PROCEDURE IF EXISTS getEmployeeProjectHours;
+DELIMITER |
+CREATE PROCEDURE getEmployeeProjectHours (IN idEmployeeRecherche INT , IN idProjectTask INT)
+BEGIN
+
+set @idRecherche = idProjectTask;
+
+WITH RECURSIVE taskTree (id, idParentTask, name) as 
+(
+	SELECT id, idParentTask, name from mvp.task
+		WHERE id = @idRecherche
+        
+	UNION ALL
+    
+    SELECT mvp.task.id, mvp.task.idParentTask, mvp.task.name FROM taskTree as t 
+		JOIN mvp.task on (mvp.task.id = t.idParentTask)
+)
+SELECT @idRecherche := id as idRecherche from taskTree where idParentTask is null;
+
+DROP TEMPORARY TABLE IF EXISTS project;
+CREATE TEMPORARY TABLE IF NOT EXISTS project AS (
+WITH RECURSIVE taskTree (id, idParentTask, name, description) AS
+(
+	SELECT id, idParentTask, name, description
+    FROM task
+    WHERE id = @idRecherche
+    
+    UNION ALL
+    
+    SELECT t.id, t.idParentTask, t.name, t.description
+    FROM taskTree tt
+    JOIN task t ON (tt.id = t.idParentTask)
+)
+SELECT * FROM taskTree);
+
+SELECT project.name as task, TIMEDIFF(t.endDate, t.startDate) as timePassed , t.startDate, t.endDate FROM project 
+	join mvp.timesheet as t
+    on project.id = t.idTask
+    WHERE t.idEmployee = idEmployeeRecherche
+    order by t.startDate;
+    
+END|
